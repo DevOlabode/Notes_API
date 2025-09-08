@@ -1,13 +1,18 @@
+
 const dotenv = require('dotenv');
 dotenv.config();
 
 const mongoose = require('mongoose');
+
 const express  = require('express');
 const app = express();
 
 const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
+
+const helmet  = require('helmet');
+
 const User = require('./models/user');
 
 app.use(session({
@@ -15,6 +20,8 @@ app.use(session({
     resave: false,
     saveUninitialized: false
 }));
+
+app.use(helmet());
 
 // Passport initialization
 app.use(passport.initialize());
@@ -27,7 +34,7 @@ passport.deserializeUser(User.deserializeUser());
 
 
 const notesRoutes = require('./routes/notes');
-const authRoutes = require('./routes/auth')
+const authRoutes = require('./routes/auth');
 
 mongoose.connect('mongodb://127.0.0.1:27017/notes_API')
     .then(() => {
@@ -37,6 +44,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/notes_API')
 });
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use('/notes', notesRoutes);
 app.use('/', authRoutes);

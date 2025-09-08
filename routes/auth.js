@@ -10,8 +10,8 @@ const catchAsync  = require('../utils/catchAsync');
 const {isLoggedIn} = require('../middleware')
 
 router.post('/register', catchAsync(async(req, res)=>{
-    const {username, email, password} = req.body;
-    const user = await User.register(new User({ username, email }), password);
+    const {email, password, username} = req.body;
+    const user = await User.register(new User({ email, username }), password);
     await user.save();
 
     res.status(201).json({msg : 'User registered successfully'});

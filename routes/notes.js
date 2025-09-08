@@ -7,9 +7,9 @@ const Note = require('../models/notes');
 const ExpressError  = require('../utils/expressError');
 const catchAsync  = require('../utils/catchAsync');
 
-const { isLoggedIn } = require('../middleware')
+const { isLoggedIn, validateNotes } = require('../middleware')
 
-router.post('/', catchAsync(async (req, res)=>{
+router.post('/', validateNotes, catchAsync(async (req, res)=>{
     const note = new Note({
         ...req.body,
         user : req.user._id
@@ -27,7 +27,7 @@ router.get("/", isLoggedIn, catchAsync(async (req, res) => {
 
     const query = {
       user: req.user._id,
-      title: { $regex: searchTerm, $options: "i" }, // case-insensitive search
+      title: { $regex: searchTerm, $options: "i" }
     };
 
     if (tag) {
@@ -65,7 +65,7 @@ router.get('/:id', isLoggedIn, catchAsync(async(req, res)=>{
     res.json(note);
 }));
 
-router.put('/:id', isLoggedIn, catchAsync(async(req, res)=>{
+router.put('/:id', isLoggedIn, validateNotes, catchAsync(async(req, res)=>{
     const note = await Note.findByIdAndUpdate({
         _id : req.params.id,
         user : req.user._id,
