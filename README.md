@@ -1,124 +1,244 @@
 # Notes API
 
-A RESTful API for managing personal notes with user authentication. Built with Node.js, Express, and MongoDB.
+A RESTful API for managing personal notes with user authentication, built using Express.js, MongoDB, and Passport.js.
 
 ## Features
 
-- User registration and authentication
-- Create, read, update, and delete notes
-- Search notes by title
-- Filter notes by tags
-- Pagination for note listings
-- Archive and pin notes
-- Secure routes with authentication middleware
+- **User Authentication**: Register, login, and logout functionality with session management
+- **Note Management**: Full CRUD operations for notes (Create, Read, Update, Delete)
+- **Search & Filtering**: Search notes by title, filter by tags
+- **Pagination**: Paginated results for better performance
+- **Security**: Helmet for security headers, XSS protection, input sanitization
+- **Validation**: Joi schema validation for input data
+- **Error Handling**: Comprehensive error handling with custom error classes
+
+## Tech Stack
+
+- **Backend**: Node.js, Express.js
+- **Database**: MongoDB with Mongoose ODM
+- **Authentication**: Passport.js with Local Strategy
+- **Validation**: Joi
+- **Security**: Helmet, XSS-clean, Express Mongo Sanitize
+- **Session Management**: Express Session
 
 ## Installation
 
 1. Clone the repository:
-   ```
-   git clone <repository-url>
-   cd notes-api
-   ```
+```bash
+git clone <repository-url>
+cd notes-api
+```
 
 2. Install dependencies:
-   ```
-   npm install
-   ```
+```bash
+npm install
+```
 
 3. Set up environment variables:
-   Create a `.env` file in the root directory with the following:
-   ```
-   SECRET=your-secret-key
-   PORT=3000
-   ```
+Create a `.env` file in the root directory with the following variables:
+```env
+PORT=3000
+SECRET=your-secret-key-here
+```
 
-4. Start MongoDB locally or update the connection string in `index.js` if using a remote database.
+4. Start MongoDB:
+Make sure MongoDB is running on your system (default: `mongodb://127.0.0.1:27017`)
 
 5. Run the application:
-   ```
-   node index.js
-   ```
+```bash
+node index.js
+```
 
-The server will start on port 3000 (or the port specified in `.env`).
+The API will be available at `http://localhost:3000`
 
 ## Usage
 
-The API provides endpoints for user authentication and note management. All note-related endpoints require authentication except registration and login.
+### Authentication Endpoints
 
-### Authentication
+#### Register a new user
+```http
+POST /
+Content-Type: application/json
 
-- Register a new user with POST `/register`
-- Login with POST `/login`
-- Logout with POST `/logout`
-- Get user profile with GET `/profile`
+{
+  "username": "johndoe",
+  "email": "john@example.com",
+  "password": "password123"
+}
+```
 
-### Notes
+#### Login
+```http
+POST /login
+Content-Type: application/json
 
-- Create a note: POST `/notes`
-- Get all notes: GET `/notes` (supports query parameters for search, tag, page, limit)
-- Get a specific note: GET `/notes/:id`
-- Update a note: PUT `/notes/:id`
-- Delete a note: DELETE `/notes/:id`
+{
+  "username": "johndoe",
+  "password": "password123"
+}
+```
 
-## API Endpoints
+#### Logout
+```http
+POST /logout
+```
 
-### Authentication Routes
+#### Get user profile
+```http
+GET /profile
+```
 
-| Method | Endpoint     | Description              | Auth Required |
-|--------|--------------|--------------------------|---------------|
-| POST   | /register    | Register a new user      | No            |
-| POST   | /login       | Login user               | No            |
-| POST   | /logout      | Logout user              | Yes           |
-| GET    | /profile     | Get user profile         | Yes           |
+### Notes Endpoints
 
-### Notes Routes
+All notes endpoints require authentication.
 
-| Method | Endpoint     | Description              | Auth Required |
-|--------|--------------|--------------------------|---------------|
-| POST   | /notes       | Create a new note        | Yes           |
-| GET    | /notes       | Get all user notes       | Yes           |
-| GET    | /notes/:id   | Get a specific note      | Yes           |
-| PUT    | /notes/:id   | Update a note            | Yes           |
-| DELETE | /notes/:id   | Delete a note            | Yes           |
+#### Create a note
+```http
+POST /notes
+Content-Type: application/json
 
-Query parameters for GET /notes:
-- `q`: Search term for title (case-insensitive)
+{
+  "title": "My First Note",
+  "content": "This is the content of my note",
+  "tags": ["work", "important"],
+  "isArchived": false,
+  "isPinned": false
+}
+```
+
+#### Get all notes
+```http
+GET /notes?page=1&limit=10&q=searchTerm&tag=work
+```
+
+Query parameters:
+- `page`: Page number (default: 1)
+- `limit`: Number of notes per page (default: 10)
+- `q`: Search term for title
 - `tag`: Filter by tag
-- `page`: Page number for pagination (default 1)
-- `limit`: Number of notes per page (default 10)
 
-## Models
+#### Get a specific note
+```http
+GET /notes/:id
+```
+
+#### Update a note
+```http
+PUT /notes/:id
+Content-Type: application/json
+
+{
+  "title": "Updated Note Title",
+  "content": "Updated content",
+  "tags": ["personal", "updated"],
+  "isArchived": true,
+  "isPinned": true
+}
+```
+
+#### Delete a note
+```http
+DELETE /notes/:id
+```
+
+## API Response Format
+
+### Success Response
+```json
+{
+  "success": true,
+  "count": 5,
+  "page": 1,
+  "totalPages": 2,
+  "totalNotes": 15,
+  "data": [...]
+}
+```
+
+### Error Response
+```json
+{
+  "error": "Error message"
+}
+```
+
+## Data Models
 
 ### User
-- `email`: String (required, unique)
-- `username`: String (handled by passport-local-mongoose)
-- `password`: String (hashed by passport-local-mongoose)
+```javascript
+{
+  email: String (required, unique),
+  username: String (auto-generated by passport-local-mongoose),
+  hash: String (password hash),
+  salt: String (password salt)
+}
+```
 
 ### Note
-- `title`: String (required, max 50 characters)
-- `content`: String (required, min 3 characters)
-- `tags`: Array of Strings (required)
-- `user`: ObjectId (reference to User)
-- `isArchived`: Boolean (default false)
-- `isPinned`: Boolean (default false)
-- `createdAt`: Date
-- `updatedAt`: Date
+```javascript
+{
+  title: String (required, max 50 chars),
+  content: String (required, min 3 chars),
+  tags: [String] (required),
+  user: ObjectId (reference to User),
+  isArchived: Boolean (default: false),
+  isPinned: Boolean (default: false),
+  createdAt: Date,
+  updatedAt: Date
+}
+```
 
-## Technologies Used
+## Validation Rules
 
-- Node.js
-- Express.js
-- MongoDB
-- Mongoose
-- Passport.js (with Local Strategy)
-- Express Session
+Notes are validated using Joi schema:
+- `title`: 1-100 characters, required
+- `content`: Minimum 1 character, required
+- `tags`: Array of strings (max 30 chars each), required
+- `isArchived`: Boolean, optional
+- `isPinned`: Boolean, optional
+
+## Project Structure
+
+```
+notes-api/
+├── index.js              # Main application file
+├── middleware.js         # Custom middleware functions
+├── schema.js             # Joi validation schemas
+├── package.json          # Dependencies and scripts
+├── models/
+│   ├── user.js           # User model
+│   └── notes.js          # Note model
+├── routes/
+│   ├── auth.js           # Authentication routes
+│   └── notes.js          # Notes CRUD routes
+└── utils/
+    ├── catchAsync.js     # Async error handler
+    └── expressError.js   # Custom error class
+```
+
+## Security Features
+
+- **Helmet**: Sets various HTTP headers for security
+- **XSS Protection**: Prevents cross-site scripting attacks
+- **MongoDB Sanitization**: Prevents NoSQL injection
+- **Session Management**: Secure session handling with Passport.js
+- **Input Validation**: Joi schemas validate all incoming data
+
+## Error Handling
+
+The API uses custom error handling:
+- `ExpressError` class for custom errors
+- `catchAsync` utility for async error handling
+- Global error handler middleware
+- Proper HTTP status codes and error messages
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Submit a pull request
+4. Add tests if applicable
+5. Submit a pull request
 
 ## License
 
