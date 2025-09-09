@@ -25,7 +25,7 @@ A RESTful API for managing personal notes with user authentication, built using 
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/DevOlabode/notes_API
 cd notes-api
 ```
 
