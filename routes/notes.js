@@ -9,17 +9,15 @@ const catchAsync  = require('../utils/catchAsync');
 
 const notes = require('../controllers/notes')
 
-const { isLoggedIn, validateNotes } = require('../middleware')
+const { isLoggedIn, validateNotes } = require('../middleware');
 
-router.post('/', validateNotes, catchAsync(notes.newNote));
+router.route('/')
+    .post(validateNotes, catchAsync(notes.newNote))
+    .get(isLoggedIn, catchAsync(notes.allNote))
 
-router.get("/", isLoggedIn, catchAsync(notes.allNote));
-
-
-router.get('/:id', isLoggedIn, catchAsync(notes.oneNote));
-
-router.put('/:id', isLoggedIn, validateNotes, catchAsync(notes.editnote));
-
-router.delete('/:id', isLoggedIn, catchAsync(notes.deleteNote))
+router.route('/:id')
+    .get(isLoggedIn, catchAsync(notes.oneNote))    
+    .put(isLoggedIn, validateNotes, catchAsync(notes.editnote))
+    .delete(isLoggedIn, catchAsync(notes.deleteNote))
 
 module.exports = router;

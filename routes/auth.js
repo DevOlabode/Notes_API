@@ -6,7 +6,7 @@ const catchAsync  = require('../utils/catchAsync');
 
 const auth = require('../controllers/auth');
 
-const {isLoggedIn} = require('../middleware')
+const { isLoggedIn } = require('../middleware')
 
 router.post('/register', catchAsync(auth.register));
 
