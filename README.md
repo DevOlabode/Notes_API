@@ -25,7 +25,7 @@ A RESTful API for managing personal notes with user authentication, built using 
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/DevOlabode/notes_API
 cd notes-api
 ```
 
@@ -39,6 +39,7 @@ Create a `.env` file in the root directory with the following variables:
 ```env
 PORT=3000
 SECRET=your-secret-key-here
+DATABASE_URL=mongodb://127.0.0.1:27017/notes_API
 ```
 
 4. Start MongoDB:
@@ -57,7 +58,7 @@ The API will be available at `http://localhost:3000`
 
 #### Register a new user
 ```http
-POST /
+POST /register
 Content-Type: application/json
 
 {
@@ -150,7 +151,7 @@ DELETE /notes/:id
   "count": 5,
   "page": 1,
   "totalPages": 2,
-  "totalNotes": 15,
+  "toatlNotes": 15,
   "data": [...]
 }
 ```
@@ -191,7 +192,7 @@ DELETE /notes/:id
 ## Validation Rules
 
 Notes are validated using Joi schema:
-- `title`: 1-100 characters, required
+- `title`: 1-50 characters, required
 - `content`: Minimum 1 character, required
 - `tags`: Array of strings (max 30 chars each), required
 - `isArchived`: Boolean, optional
