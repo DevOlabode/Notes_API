@@ -12,8 +12,8 @@ const notes = require('../controllers/notes')
 const { isLoggedIn, validateNotes } = require('../middleware');
 
 router.route('/')
-    .post(validateNotes, catchAsync(notes.newNote))
     .get(isLoggedIn, catchAsync(notes.allNote))
+    .post(validateNotes, catchAsync(notes.newNote))
 
 router.route('/:id')
     .get(isLoggedIn, catchAsync(notes.oneNote))    
