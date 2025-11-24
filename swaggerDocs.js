@@ -67,6 +67,64 @@ const options = {
               example: "Error message describing what went wrong"
             }
           }
+        },
+        User: {
+          type: "object",
+          properties: {
+            _id: {
+              type: "string",
+              example: "64a7e6f8b7a3b12c345d6789"
+            },
+            email: {
+              type: "string",
+              example: "user@example.com"
+            },
+            username: {
+              type: "string",
+              example: "user123"
+            }
+          }
+        },
+        RegisterRequest: {
+          type: "object",
+          required: ["email", "password", "username"],
+          properties: {
+            email: {
+              type: "string",
+              example: "user@example.com"
+            },
+            username: {
+              type: "string",
+              example: "user123"
+            },
+            password: {
+              type: "string",
+              example: "password123"
+            }
+          }
+        },
+        LoginRequest: {
+          type: "object",
+          required: ["email", "password"],
+          properties: {
+            email: {
+              type: "string",
+              example: "user@example.com"
+            },
+            password: {
+              type: "string",
+              example: "password123"
+            }
+          }
+        },
+        SuccessMessage: {
+          type: "object",
+          properties: {
+            msg: {
+              type: "string",
+              example: "Operation successful"
+            }
+          }
         }
       }
     },
@@ -317,6 +375,128 @@ const options = {
             },
             404: {
               description: "Note not found",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/Error" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/register": {
+        post: {
+          tags: ["Auth"],
+          summary: "Register a new user",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/RegisterRequest" }
+              }
+            }
+          },
+          responses: {
+            201: {
+              description: "User registered successfully",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/SuccessMessage" }
+                }
+              }
+            },
+            400: {
+              description: "Invalid input or user already exists",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/Error" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/login": {
+        post: {
+          tags: ["Auth"],
+          summary: "Log in a user",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/LoginRequest" }
+              }
+            }
+          },
+          responses: {
+            200: {
+              description: "Logged in successfully",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/SuccessMessage" }
+                }
+              }
+            },
+            401: {
+              description: "Invalid email or password",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/Error" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/logout": {
+        post: {
+          tags: ["Auth"],
+          summary: "Log out the currently authenticated user",
+          security: [{ cookieAuth: [] }],
+          responses: {
+            201: {
+              description: "Logged out successfully",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/SuccessMessage" }
+                }
+              }
+            },
+            401: {
+              description: "User not authenticated",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/Error" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/profile": {
+        get: {
+          tags: ["Auth"],
+          summary: "Get profile of the currently authenticated user",
+          security: [{ cookieAuth: [] }],
+          responses: {
+            200: {
+              description: "User profile",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/User" }
+                }
+              }
+            },
+            404: {
+              description: "User not found",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/Error" }
+                }
+              }
+            },
+            401: {
+              description: "User not authenticated",
               content: {
                 "application/json": {
                   schema: { $ref: "#/components/schemas/Error" }
