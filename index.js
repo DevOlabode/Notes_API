@@ -1,8 +1,5 @@
 
-const dotenv = require('dotenv');
-dotenv.config();
-
-const mongoose = require('mongoose');
+require('dotenv').config();
 
 const express  = require('express');
 const app = express();
@@ -36,12 +33,7 @@ passport.deserializeUser(User.deserializeUser());
 const notesRoutes = require('./routes/notes');
 const authRoutes = require('./routes/auth');
 
-mongoose.connect('mongodb://127.0.0.1:27017/notes_API')
-    .then(() => {
-        console.log("Mongo Connection Open")   
-    }).catch((err) => {
-        console.log("Error", err)
-});
+require('./config/db')();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
