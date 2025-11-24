@@ -2,6 +2,10 @@
 require('dotenv').config();
 
 const express  = require('express');
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./swaggerDocs');
+
 const app = express();
 
 const session = require('express-session');
@@ -37,6 +41,9 @@ require('./config/db')();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Swagger UI setup
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/notes', notesRoutes);
 app.use('/', authRoutes);
